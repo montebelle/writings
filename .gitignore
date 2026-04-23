@@ -1,0 +1,27 @@
+# Environment / secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# OS / editor
+.DS_Store
+*.swp
+.vscode/
+.idea/
+Thumbs.db
+
+# Dependencies
+node_modules/
+
+# Build artifacts / drafts
+*.log
+*.tmp
+drafts/
+
+# Rendered output (if you pre-render posts)
+_site/
+public/
+out/
