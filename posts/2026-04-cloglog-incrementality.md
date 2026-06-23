@@ -15,7 +15,7 @@ Here's what each piece does and why the stack is the right shape.
 Cox proportional hazards is the default when people hear "survival." It assumes continuous time, proportional hazards, and the event indicator is all you observe. Digital marketing data violates every one of these:
 
 - **Time is not continuous.** You observe user-period snapshots — daily, weekly, biweekly. Pretending otherwise biases the partial likelihood.
-- **PH is frequently violated.** Ad effectiveness decays with exposure cumulative count; the hazard ratio is not constant over time. Schoenfeld residuals against time show clear time-varying effects.
+- **PH is frequently violated.** Ad effectiveness decays with exposure cumulative count; the hazard ratio is not constant over time. A covariate × time interaction test shows clear time-varying effects.
 - **The panel is huge.** 33.6M users × 7 periods = 235M person-period rows. Cox's baseline-hazard estimation doesn't scale to this cleanly.
 
 Discrete-time hazard with complementary log-log link handles all three:
@@ -50,7 +50,7 @@ Before you ship a cloglog β̂, check that the model isn't lying about its basel
 
 **Nelson-Aalen cumulative hazard.** Complementary to KM; often more stable in the tail. Use as a sanity check on the shape of the hazard trajectory.
 
-**Schoenfeld residuals.** The actual PH test. Plot residuals for each covariate against time. A slope ≠ 0 means that covariate's hazard ratio is changing over time — the cloglog spec with time-invariant β for that covariate is mis-specified. Add `covariate × time` interaction and re-fit.
+**Covariate × time interaction.** The PH test used here: add a `covariate × time` term and test its coefficient. A significant interaction means that covariate's hazard ratio is changing over time — the cloglog spec with time-invariant β for that covariate is mis-specified — so keep the interaction in the fit. (Schoenfeld residual plots against time are the classical equivalent diagnostic.)
 
 **Log-log parallelism plots.** Visual PH check. Plot `log(-log(S(t)))` for each subgroup. Parallel curves = PH holds for that stratification. Non-parallel = stratify the model.
 
@@ -80,7 +80,7 @@ The doubly-robust property: `τ̂_DR` is consistent if *either* the propensity m
 
 Positivity: every unit must have `P(treated | X)` strictly between 0 and 1. Propensity scores near 0 or 1 produce explosive IPW weights that dominate the estimate.
 
-[Crump et al. (2009)](https://doi.org/10.1093/biomet/asn055) trimming: drop units with `P̂ < 0.1` or `P̂ > 0.9`. This changes the estimand (you're now estimating the effect on the trimmed population, not the full one) but that's an honest tradeoff against the alternative (infinite-variance estimator).
+[Crump et al. (2009)](https://doi.org/10.1093/biomet/asn055) trimming: drop units with `P̂ < 0.01` or `P̂ > 0.99`. This changes the estimand (you're now estimating the effect on the trimmed population, not the full one) but that's an honest tradeoff against the alternative (infinite-variance estimator).
 
 ### Balance diagnostics post-matching
 
